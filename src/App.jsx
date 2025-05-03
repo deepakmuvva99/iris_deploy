@@ -3,43 +3,41 @@ import axios from 'axios';
 import './App.css';
 
 function App() {
-  const [features, setFeatures] = useState([0, 0, 0, 0]);
-  const [result, setResult] = useState('');
+  const [features, setFeatures] = useState(["", "", "", ""]);
+  const [prediction, setPrediction] = useState("");
 
   const handleChange = (index, value) => {
-    const newFeatures = [...features];
-    newFeatures[index] = parseFloat(value);
-    setFeatures(newFeatures);
+    const updated = [...features];
+    updated[index] = value;
+    setFeatures(updated);
   };
 
   const handleSubmit = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/predict', {
-        features,
+      const response = await axios.post('https://iris-backend-1-xfs8.onrender.com/predict', {
+        features: features.map(Number)
       });
-      setResult(res.data.prediction);
-    } catch (error) {
-      setResult('Error: Could not connect to backend');
+      setPrediction(response.data.prediction);
+    } catch (err) {
+      setPrediction("Error: " + err.message);
     }
   };
 
   return (
-    <div className="container">
-      <h1>Iris Classifier 🌸</h1>
+    <div className="app">
+      <h1>Iris Flower Predictor 🌸</h1>
       <div className="form">
-        {['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width'].map(
-          (label, i) => (
-            <input
-              key={i}
-              type="number"
-              step="0.1"
-              placeholder={label}
-              onChange={(e) => handleChange(i, e.target.value)}
-            />
-          )
-        )}
+        {["Sepal Length", "Sepal Width", "Petal Length", "Petal Width"].map((label, i) => (
+          <input
+            key={i}
+            type="number"
+            placeholder={label}
+            value={features[i]}
+            onChange={(e) => handleChange(i, e.target.value)}
+          />
+        ))}
         <button onClick={handleSubmit}>Predict</button>
-        {result && <h2>Prediction: {result}</h2>}
+        {prediction && <h2>Prediction: {prediction}</h2>}
       </div>
     </div>
   );
